@@ -15,6 +15,7 @@
 *.exe
 *.out
 *.app
+env2
 
 # Temporary files
 *.swp
