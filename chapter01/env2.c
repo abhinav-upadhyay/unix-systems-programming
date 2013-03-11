@@ -15,8 +15,8 @@ print_env(void)
     }
 }
 
-static void
-set_environment(char **env_list, size_t env_list_len, int replace)
+static char **
+get_environment(char **env_list, size_t env_list_len, int replace)
 {
     size_t new_environ_len = env_list_len + 1; /* One extra for last NULL */
     char **new_environ;
@@ -52,7 +52,7 @@ set_environment(char **env_list, size_t env_list_len, int replace)
         }
     }
     new_environ[i] = NULL;
-    environ = new_environ;
+    return new_environ;
 }
 
 static int
@@ -67,7 +67,7 @@ main(int argc, char **argv)
     int i;
     int j;
     int flag_i = 0; /* -i specified or not */
-    char **var_list; /* The environment variable list */
+    char **var_list = NULL; /* The environment variable list */
     char *cmd = NULL;
     char *cmd_args;
     size_t cmd_args_len;
@@ -75,6 +75,7 @@ main(int argc, char **argv)
     size_t nvars = 0;
     size_t equals_pos;
     int cmd_args_index = 0;
+    int exit_status;
     
     if (argc == 1) {
         print_env();
@@ -120,11 +121,12 @@ main(int argc, char **argv)
             var_list[j++] = argv[i];
         }
     }
-    set_environment(var_list, nvars, flag_i);
+    environ = get_environment(var_list, nvars, flag_i);
     if (!cmd) {
         print_env();
         return 0;
     }
+    free(var_list);
 
     cmd_args_len = strlen(cmd);
     for (i = cmd_args_index; i && argv[i] != NULL; i++) {
@@ -142,5 +144,11 @@ main(int argc, char **argv)
         strncat(cmd_args, " ", 1);
         strncat(cmd_args, argv[i], strlen(argv[i]) + 1);
     }
-    return run_cmd(cmd_args);
+    exit_status = run_cmd(cmd_args);
+    free(cmd_args);
+    for (i = 0; environ[i] != NULL; i++) {
+        free(environ[i]);
+    }
+    free(environ);
+    return exit_status;
 }
