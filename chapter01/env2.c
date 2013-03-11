@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define _GNU_SOURCE
+#define _GNU_SOURCE /* Required for asprintf on GNU platform */
 extern char **environ;
 
 static void
