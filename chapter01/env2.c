@@ -15,44 +15,18 @@ print_env(void)
     }
 }
 
-static char **
-get_environment(char **env_list, size_t env_list_len, int replace)
+static void
+set_environment(char **env_list, size_t env_list_len, int replace)
 {
-    size_t new_environ_len = env_list_len + 1; /* One extra for last NULL */
-    char **new_environ;
+    char *clearenv[1] = {NULL};
     int i;
-    int j;
-    if (!replace) {
-        for (i = 0; environ[i] != NULL; i++) {
-            new_environ_len++;
-        }
+    if (replace) {
+        environ = clearenv;
     }
 
-    new_environ = malloc(new_environ_len * sizeof(char *));
-    if (new_environ == NULL) {
-        err(EXIT_FAILURE, "malloc failed");
+    for (i = 0; i < env_list_len; i++) {
+        putenv(env_list[i]);
     }
-
-    i = 0;
-    if (!replace) {
-        for (; environ[i] != NULL; i++) {
-            if ((asprintf(&new_environ[i], "%s", environ[i])) == -1) {
-                err(EXIT_FAILURE, "malloc failed");
-            }
-        }
-    }
-
-    if (env_list == NULL) {
-        return;
-    }
-
-    for (j = 0; j < env_list_len; j++) {
-        if ((asprintf(&new_environ[i++], "%s", env_list[j])) == -1) {
-            err(EXIT_FAILURE, "malloc failed");
-        }
-    }
-    new_environ[i] = NULL;
-    return new_environ;
 }
 
 static int
@@ -121,7 +95,7 @@ main(int argc, char **argv)
             var_list[j++] = argv[i];
         }
     }
-    environ = get_environment(var_list, nvars, flag_i);
+    set_environment(var_list, nvars, flag_i);
     if (!cmd) {
         print_env();
         return 0;
@@ -146,9 +120,5 @@ main(int argc, char **argv)
     }
     exit_status = run_cmd(cmd_args);
     free(cmd_args);
-    for (i = 0; environ[i] != NULL; i++) {
-        free(environ[i]);
-    }
-    free(environ);
     return exit_status;
 }
