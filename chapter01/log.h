@@ -12,3 +12,5 @@ int addmsg(data_t data);
 void clearlog(void);
 char *getlog(void);
 int savelog(char *filename);
+
+#endif
