@@ -11,6 +11,6 @@ typedef struct data_struct {
 int addmsg(data_t data);
 void clearlog(void);
 char *getlog(void);
-int savelog(char *filename);
+int savelog(const char *filename);
 
 #endif
