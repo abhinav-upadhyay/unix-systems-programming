@@ -16,7 +16,7 @@ static log_t *tailptr = NULL;
 int
 addmsg(data_t data)
 {
-    size_t nodesize = sizeof(data_t) + strlen(data.string) + 1;
+    size_t nodesize = sizeof(log_t) + strlen(data.string) + 1;
     int error;
     log_t *new_node = malloc(nodesize);
     if (new_node == NULL) {
@@ -52,7 +52,7 @@ clearlog(void)
 char *
 getlog(void)
 {
-    size_t len;
+    size_t len = 0;
     size_t msglen;
     size_t offset;
     log_t *node = headptr;
@@ -77,6 +77,7 @@ getlog(void)
         offset += msglen;
         memcpy(log + offset, "\n", 1);
         offset++;
+        node = node->next;
     }
     memcpy(log + offset - 1, "\0", 1);
     return log;
